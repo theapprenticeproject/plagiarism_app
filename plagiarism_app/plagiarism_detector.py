@@ -192,6 +192,31 @@ def process_image_submission(submission_data):
                     "review_status": "Pending"
                 }).insert()
 
-    # Clean up: Optionally delete the local image file after processing
-    if os.path.exists(image_path):
-        os.remove(image_path)
+                # Send plagiarism feedback to RabbitMQ
+                send_plagiarism_feedback(
+                    image_id=image_id,
+                    plagiarism_flag="Pending",
+                    similarity_score=distance,
+                    cluster_id=similar_image_doc.cluster_id
+                )
+
+        if not plagiarism_detected:
+            # If no plagiarism was detected
+            send_plagiarism_feedback(
+                image_id=image_id,
+                plagiarism_flag="No Plagiarism",
+                similarity_score=None,
+                cluster_id=None
+            )
+
+    else:
+        # No similar images found in the database
+        frappe.logger().info(f"No similar images found for image {image_id}")
+
+        # Send feedback indicating no plagiarism
+        send_plagiarism_feedback(
+            image_id=image_id,
+            plagiarism_flag="No Plagiarism",
+            similarity_score=None,
+            cluster_id=None
+        )
