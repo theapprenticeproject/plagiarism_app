@@ -1,0 +1,70 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:{image_id}-{####}",
+ "creation": "2024-09-08 10:22:33.160536",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "image_id",
+  "cluster_id",
+  "flag_date",
+  "review_status",
+  "reviewer_comments"
+ ],
+ "fields": [
+  {
+   "fieldname": "image_id",
+   "fieldtype": "Link",
+   "label": "Image ID",
+   "options": "Image Metadata"
+  },
+  {
+   "fieldname": "cluster_id",
+   "fieldtype": "Link",
+   "label": "Cluster ID ",
+   "options": "Cluster Information"
+  },
+  {
+   "fieldname": "flag_date",
+   "fieldtype": "Datetime",
+   "label": "Flag Date"
+  },
+  {
+   "fieldname": "review_status",
+   "fieldtype": "Select",
+   "label": "Review Status",
+   "options": "Pending\nUnder Review\nCleared\nConfirmed Plagiarism"
+  },
+  {
+   "fieldname": "reviewer_comments",
+   "fieldtype": "Text",
+   "label": "Reviewer Comments"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-09-09 12:57:26.801894",
+ "modified_by": "Administrator",
+ "module": "Submission plagiarism app",
+ "name": "Plagiarism Flag",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

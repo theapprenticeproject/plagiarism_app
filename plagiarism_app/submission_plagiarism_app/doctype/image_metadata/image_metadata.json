@@ -1,0 +1,100 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:{submission_id}",
+ "creation": "2024-09-07 13:50:03.381761",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "image_metadata_section",
+  "feature_vector_column",
+  "image_file",
+  "upload_date",
+  "student_id",
+  "tags",
+  "feature_vector",
+  "cluster_id",
+  "source",
+  "submission_id"
+ ],
+ "fields": [
+  {
+   "fieldname": "image_metadata_section",
+   "fieldtype": "Section Break",
+   "label": "Image Metadata"
+  },
+  {
+   "fieldname": "feature_vector_column",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "image_file",
+   "fieldtype": "Attach Image",
+   "label": "Image File"
+  },
+  {
+   "fieldname": "upload_date",
+   "fieldtype": "Datetime",
+   "label": "Upload Date",
+   "options": "now",
+   "read_only": 1
+  },
+  {
+   "fieldname": "student_id",
+   "fieldtype": "Data",
+   "label": "Student ID"
+  },
+  {
+   "fieldname": "cluster_id",
+   "fieldtype": "Data",
+   "label": "Cluster ID"
+  },
+  {
+   "fieldname": "tags",
+   "fieldtype": "Table",
+   "label": "Tags/Labels",
+   "options": "Image Tags"
+  },
+  {
+   "fieldname": "source",
+   "fieldtype": "Data",
+   "label": "Source"
+  },
+  {
+   "fieldname": "feature_vector",
+   "fieldtype": "Text",
+   "label": "Feature Vector"
+  },
+  {
+   "fieldname": "submission_id",
+   "fieldtype": "Data",
+   "label": "Submission ID",
+   "unique": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-09-09 11:08:04.687349",
+ "modified_by": "Administrator",
+ "module": "Submission plagiarism app",
+ "name": "Image Metadata",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

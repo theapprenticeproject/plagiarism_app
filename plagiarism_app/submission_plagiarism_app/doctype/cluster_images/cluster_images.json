@@ -1,0 +1,55 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-09-08 10:12:44.108766",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "image_id",
+  "similarity_score",
+  "role_in_cluster"
+ ],
+ "fields": [
+  {
+   "fieldname": "image_id",
+   "fieldtype": "Link",
+   "label": "Image ID",
+   "options": "Image Metadata"
+  },
+  {
+   "fieldname": "similarity_score",
+   "fieldtype": "Float",
+   "label": "Similarity Score"
+  },
+  {
+   "fieldname": "role_in_cluster",
+   "fieldtype": "Select",
+   "label": "Role in Cluster",
+   "options": "Original\nVariant"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-09-08 12:55:00.359538",
+ "modified_by": "Administrator",
+ "module": "Submission plagiarism app",
+ "name": "Cluster Images",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -1,0 +1,74 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-09-08 10:04:52.495592",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "comparison_section",
+  "image_1_id",
+  "image_2_id",
+  "similarity_score",
+  "threshold_exceeded",
+  "comparison_date"
+ ],
+ "fields": [
+  {
+   "fieldname": "comparison_section",
+   "fieldtype": "Section Break",
+   "label": "Comparison"
+  },
+  {
+   "fieldname": "image_1_id",
+   "fieldtype": "Link",
+   "label": "Image 1 ID",
+   "options": "Image Metadata"
+  },
+  {
+   "fieldname": "image_2_id",
+   "fieldtype": "Link",
+   "label": "Image 2 ID",
+   "options": "Image Metadata"
+  },
+  {
+   "fieldname": "similarity_score",
+   "fieldtype": "Float",
+   "label": "Similarity Score"
+  },
+  {
+   "default": "0",
+   "fieldname": "threshold_exceeded",
+   "fieldtype": "Check",
+   "label": "Threshold Exceeded"
+  },
+  {
+   "fieldname": "comparison_date",
+   "fieldtype": "Datetime",
+   "label": "Comparison Date"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-09-08 12:54:43.510631",
+ "modified_by": "Administrator",
+ "module": "Submission plagiarism app",
+ "name": "Similarity Score",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

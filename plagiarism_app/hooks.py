@@ -5,6 +5,13 @@ app_description = "submission plagiarism detection app "
 app_email = "mail@evalix.xyz"
 app_license = "mit"
 
+scheduler_events = {
+    "all": [
+        "plagiarism_app.rabbitmq_consumer.start_consuming"
+    ]
+}
+
+
 # Apps
 # ------------------
 
