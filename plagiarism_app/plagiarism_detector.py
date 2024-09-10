@@ -6,6 +6,7 @@ import numpy as np
 import faiss
 import os
 import torch
+import pika  # RabbitMQ library for feedback
 import torchvision.models as models
 import torchvision.transforms as transforms
 from PIL import Image
@@ -28,6 +29,57 @@ transform = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
 ])
+
+# Function to connect to RabbitMQ plagiarism feedback queue
+def connect_to_feedback_queue():
+    rabbitmq_feedback_config = {
+        'host': 'armadillo.rmq.cloudamqp.com',
+        'port': 5672,
+        'virtual_host': 'fzdqidte',
+        'username': 'fzdqidte',
+        'password': '0SMrDogBVcWUcu9brWwp2QhET_kArl59',
+        'queue': 'plagiarism_feedback_queue'  # Queue for feedback
+    }
+    credentials = pika.PlainCredentials(rabbitmq_feedback_config['username'], rabbitmq_feedback_config['password'])
+    connection = pika.BlockingConnection(pika.ConnectionParameters(
+        host=rabbitmq_feedback_config['host'],
+        port=rabbitmq_feedback_config['port'],
+        virtual_host=rabbitmq_feedback_config['virtual_host'],
+        credentials=credentials))
+    return connection
+
+# Function to publish feedback to RabbitMQ
+def send_plagiarism_feedback(image_id, plagiarism_flag, similarity_score, cluster_id):
+    connection = connect_to_feedback_queue()
+    channel = connection.channel()
+    
+    # Declare the feedback queue with durability enabled
+    channel.queue_declare(queue='plagiarism_feedback_queue', durable=True)
+
+    # Convert similarity_score to a standard Python float if it exists
+    if similarity_score is not None:
+        similarity_score = float(similarity_score)
+
+    # Prepare message to send
+    feedback_message = {
+        "image_id": image_id,
+        "plagiarism_flag": plagiarism_flag,
+        "similarity_score": similarity_score,
+        "cluster_id": cluster_id
+    }
+
+    # Publish message to plagiarism_feedback_queue, making the message persistent
+    channel.basic_publish(
+        exchange='',
+        routing_key='plagiarism_feedback_queue',
+        body=json.dumps(feedback_message),
+        properties=pika.BasicProperties(
+            delivery_mode=2  # Make the message persistent
+        )
+    )
+    
+    # Close connection
+    connection.close()
 
 # Function to download the image and save it locally in the private folder
 def download_image(img_url, submission_id):
@@ -124,10 +176,13 @@ def process_image_submission(submission_data):
 
     # Step 7: Handle plagiarism detection results
     threshold = 0.95  # Set a more sensitive threshold for plagiarism detection
-    if distances is not None:
+    if distances is not None and len(distances) > 0:
+        plagiarism_detected = False
         for i, distance in enumerate(distances):
             frappe.logger().info(f"Checking image {indices[i]} with distance {distance}")
             if distance < threshold:
+                # Plagiarism detected
+                plagiarism_detected = True
                 similar_image_doc = frappe.get_doc("Image Metadata", indices[i])
                 frappe.get_doc({
                     "doctype": "Plagiarism Flag",
@@ -136,3 +191,32 @@ def process_image_submission(submission_data):
                     "flag_date": frappe.utils.now_datetime(),
                     "review_status": "Pending"
                 }).insert()
+
+                # Send plagiarism feedback to RabbitMQ
+                send_plagiarism_feedback(
+                    image_id=image_id,
+                    plagiarism_flag="Pending",
+                    similarity_score=distance,
+                    cluster_id=similar_image_doc.cluster_id
+                )
+
+        if not plagiarism_detected:
+            # If no plagiarism was detected
+            send_plagiarism_feedback(
+                image_id=image_id,
+                plagiarism_flag="No Plagiarism",
+                similarity_score=None,
+                cluster_id=None
+            )
+
+    else:
+        # No similar images found in the database
+        frappe.logger().info(f"No similar images found for image {image_id}")
+
+        # Send feedback indicating no plagiarism
+        send_plagiarism_feedback(
+            image_id=image_id,
+            plagiarism_flag="No Plagiarism",
+            similarity_score=None,
+            cluster_id=None
+        )
