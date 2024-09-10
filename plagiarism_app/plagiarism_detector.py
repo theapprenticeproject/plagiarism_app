@@ -136,7 +136,3 @@ def process_image_submission(submission_data):
                     "flag_date": frappe.utils.now_datetime(),
                     "review_status": "Pending"
                 }).insert()
-
-    # Clean up: Optionally delete the local image file after processing
-    if os.path.exists(image_path):
-        os.remove(image_path)
