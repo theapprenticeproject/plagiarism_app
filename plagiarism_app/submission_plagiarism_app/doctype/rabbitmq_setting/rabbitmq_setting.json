@@ -1,0 +1,81 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-10-09 12:30:53.351450",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "column_break_vjgt",
+  "host",
+  "port",
+  "virtual_host",
+  "username",
+  "password",
+  "submission_queue",
+  "feedback_queue"
+ ],
+ "fields": [
+  {
+   "fieldname": "host",
+   "fieldtype": "Data",
+   "label": "Host"
+  },
+  {
+   "fieldname": "port",
+   "fieldtype": "Int",
+   "label": "Port"
+  },
+  {
+   "fieldname": "password",
+   "fieldtype": "Password",
+   "label": "Password"
+  },
+  {
+   "fieldname": "virtual_host",
+   "fieldtype": "Data",
+   "label": "Virtual Host"
+  },
+  {
+   "fieldname": "username",
+   "fieldtype": "Data",
+   "label": "Username"
+  },
+  {
+   "fieldname": "column_break_vjgt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "submission_queue",
+   "fieldtype": "Data",
+   "label": "Submission Queue"
+  },
+  {
+   "fieldname": "feedback_queue",
+   "fieldtype": "Data",
+   "label": "Feedback Queue"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2024-10-09 12:35:38.746292",
+ "modified_by": "Administrator",
+ "module": "Submission plagiarism app",
+ "name": "RabbitMQ Setting",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
