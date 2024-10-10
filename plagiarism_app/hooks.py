@@ -5,14 +5,14 @@ app_description = "submission plagiarism detection app "
 app_email = "mail@evalix.xyz"
 app_license = "mit"
 
-background_jobs = [
-    {
-        "doctype": "RabbitMQ Settings",
-        "queue": "long",
-        "run_function": "plagiarism_app.rabbitmq_consumer.start_consuming"
-    }
-]
 
+scheduler_events = {
+    "cron": {
+        "*/30 * * * * *": [
+            "plagiarism_app.rabbitmq_consumer.start_consuming"
+        ]
+    }
+}
 
 # Apps
 # ------------------

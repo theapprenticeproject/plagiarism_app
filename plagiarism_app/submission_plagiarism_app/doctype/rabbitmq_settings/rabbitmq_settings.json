@@ -1,11 +1,10 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2024-10-09 12:30:53.351450",
+ "creation": "2024-10-09 14:05:27.075068",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "column_break_vjgt",
   "host",
   "port",
   "virtual_host",
@@ -26,11 +25,6 @@
    "label": "Port"
   },
   {
-   "fieldname": "password",
-   "fieldtype": "Password",
-   "label": "Password"
-  },
-  {
    "fieldname": "virtual_host",
    "fieldtype": "Data",
    "label": "Virtual Host"
@@ -41,8 +35,9 @@
    "label": "Username"
   },
   {
-   "fieldname": "column_break_vjgt",
-   "fieldtype": "Column Break"
+   "fieldname": "password",
+   "fieldtype": "Data",
+   "label": "Password"
   },
   {
    "fieldname": "submission_queue",
@@ -58,10 +53,10 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-10-09 12:35:38.746292",
+ "modified": "2024-10-09 14:15:31.918026",
  "modified_by": "Administrator",
  "module": "Submission plagiarism app",
- "name": "RabbitMQ Setting",
+ "name": "RabbitMQ Settings",
  "owner": "Administrator",
  "permissions": [
   {

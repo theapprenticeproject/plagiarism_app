@@ -5,5 +5,5 @@
 from frappe.tests.utils import FrappeTestCase
 
 
-class TestRabbitMQSetting(FrappeTestCase):
+class TestRabbitMQSettings(FrappeTestCase):
 	pass

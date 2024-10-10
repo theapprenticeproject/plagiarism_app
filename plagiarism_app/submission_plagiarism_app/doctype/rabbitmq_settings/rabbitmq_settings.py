@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class RabbitMQSetting(Document):
+class RabbitMQSettings(Document):
 	pass
