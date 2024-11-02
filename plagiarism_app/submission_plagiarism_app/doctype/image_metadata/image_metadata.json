@@ -15,7 +15,9 @@
   "feature_vector",
   "cluster_id",
   "source",
-  "submission_id"
+  "submission_id",
+  "assignment_id",
+  "original_url"
  ],
  "fields": [
   {
@@ -70,11 +72,21 @@
    "fieldtype": "Data",
    "label": "Submission ID",
    "unique": 1
+  },
+  {
+   "fieldname": "assignment_id",
+   "fieldtype": "Data",
+   "label": "Assignment Id"
+  },
+  {
+   "fieldname": "original_url",
+   "fieldtype": "Data",
+   "label": "Original Url"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-09-09 11:08:04.687349",
+ "modified": "2024-11-02 12:50:15.060599",
  "modified_by": "Administrator",
  "module": "Submission plagiarism app",
  "name": "Image Metadata",
