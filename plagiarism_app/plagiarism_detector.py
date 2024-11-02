@@ -15,8 +15,8 @@ from datetime import datetime
 from typing import Dict, List, Optional, Tuple, Union
 
 # Set up logging
-logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 # Initialize image processing
 image_directory = frappe.get_site_path('private', 'files', 'submitted_images')
@@ -42,8 +42,6 @@ def connect_to_feedback_queue() -> pika.BlockingConnection:
     """
     try:
         rabbitmq_settings = frappe.get_single("RabbitMQ Settings")
-        logger.debug(f"RabbitMQ Settings: {rabbitmq_settings.as_dict()}")
-        
         credentials = pika.PlainCredentials(
             rabbitmq_settings.username, 
             rabbitmq_settings.password
@@ -56,7 +54,7 @@ def connect_to_feedback_queue() -> pika.BlockingConnection:
         ))
         return connection
     except Exception as e:
-        logger.error(f"Error connecting to RabbitMQ: {str(e)}")
+        logger.error(f"RabbitMQ connection error: {str(e)}")
         raise
 
 def get_similar_sources(cluster_id: Optional[str]) -> List[Dict]:
@@ -85,7 +83,7 @@ def get_similar_sources(cluster_id: Optional[str]) -> List[Dict]:
                     'submission_id': image_meta.submission_id,
                     'student_id': image_meta.student_id,
                     'assignment_id': image_meta.assignment_id,
-                    'img_url': image_meta.original_url,  # Use original URL
+                    'img_url': image_meta.original_url,
                     'similarity_score': img.similarity_score,
                     'role': img.role_in_cluster
                 })
@@ -100,14 +98,8 @@ def get_similar_sources(cluster_id: Optional[str]) -> List[Dict]:
 def download_image(img_url: str, submission_id: str) -> str:
     """
     Download image from URL and save to local storage
-    Args:
-        img_url: URL of the image to download
-        submission_id: Unique identifier for the submission
-    Returns:
-        Path where the image is saved
     """
     try:
-        logger.debug(f"Downloading image from {img_url}")
         response = requests.get(img_url)
         response.raise_for_status()
         
@@ -115,20 +107,14 @@ def download_image(img_url: str, submission_id: str) -> str:
         with open(image_path, 'wb') as f:
             f.write(response.content)
             
-        logger.debug(f"Image saved to {image_path}")
         return image_path
     except Exception as e:
-        logger.error(f"Error downloading image: {str(e)}")
+        logger.error(f"Error downloading image for {submission_id}: {str(e)}")
         raise
 
 def attach_image_to_doc(image_path: str, submission_id: str) -> str:
     """
     Attach downloaded image to Frappe document
-    Args:
-        image_path: Path to the downloaded image
-        submission_id: Unique identifier for the submission
-    Returns:
-        URL of the attached file
     """
     try:
         with open(image_path, 'rb') as filedata:
@@ -144,16 +130,12 @@ def attach_image_to_doc(image_path: str, submission_id: str) -> str:
             frappe.db.commit()
             return file_doc.file_url
     except Exception as e:
-        logger.error(f"Error attaching image to doc: {str(e)}")
+        logger.error(f"Error attaching image for {submission_id}: {str(e)}")
         raise
 
 def extract_feature_vector(image_path: str) -> np.ndarray:
     """
     Extract feature vector from image using ResNet
-    Args:
-        image_path: Path to the image file
-    Returns:
-        NumPy array containing the feature vector
     """
     try:
         image = Image.open(image_path).convert('RGB')
@@ -169,11 +151,6 @@ def extract_feature_vector(image_path: str) -> np.ndarray:
 def check_for_plagiarism(image_id: str, feature_vector: np.ndarray) -> Tuple[Optional[np.ndarray], Optional[np.ndarray]]:
     """
     Check for similar images using FAISS
-    Args:
-        image_id: ID of the image to check
-        feature_vector: Feature vector of the image
-    Returns:
-        Tuple of distances and indices arrays
     """
     try:
         image_docs = frappe.get_all('Image Metadata', 
@@ -197,7 +174,7 @@ def check_for_plagiarism(image_id: str, feature_vector: np.ndarray) -> Tuple[Opt
             return distances[0], indices[0]
         return None, None
     except Exception as e:
-        logger.error(f"Error checking for plagiarism: {str(e)}")
+        logger.error(f"Error checking plagiarism for {image_id}: {str(e)}")
         return None, None
 
 def send_plagiarism_feedback(submission_id: str, 
@@ -231,10 +208,10 @@ def send_plagiarism_feedback(submission_id: str,
             body=json.dumps(feedback_message),
             properties=pika.BasicProperties(delivery_mode=2)
         )
-        logger.info(f"Sent feedback for submission {submission_id}")
+        logger.info(f"Sent feedback for submission: {submission_id}")
         
     except Exception as e:
-        logger.error(f"Error sending feedback message: {str(e)}")
+        logger.error(f"Error sending feedback for {submission_id}: {str(e)}")
     finally:
         if connection and not connection.is_closed:
             connection.close()
@@ -253,22 +230,13 @@ def process_image_submission(submission_data: Dict) -> None:
         }
     """
     try:
-        logger.info(f"Starting to process submission: {submission_data}")
+        submission_id = submission_data.get("submission_id")
+        logger.info(f"Processing submission: {submission_id}")
         
         # Extract fields with direct mapping
-        submission_id = submission_data.get("submission_id")
-        img_url = submission_data.get("img_url")  # Original URL from input
+        img_url = submission_data.get("img_url")
         student_id = submission_data.get("student_id")
         assign_id = submission_data.get("assign_id")
-
-        # Log extracted fields for debugging
-        logger.debug(f"""
-        Extracted fields:
-        - submission_id: {submission_id}
-        - img_url: {img_url}
-        - student_id: {student_id}
-        - assign_id: {assign_id}
-        """)
 
         # Validate required fields
         missing_fields = []
@@ -286,22 +254,17 @@ def process_image_submission(submission_data: Dict) -> None:
             logger.error(error_msg)
             return
 
-        # Process image and store locally for analysis
-        logger.debug("Downloading image for analysis...")
+        # Process image
         image_path = download_image(img_url, submission_id)
-        logger.debug(f"Image saved to: {image_path}")
-
-        # Extract features and save metadata
         feature_vector = extract_feature_vector(image_path)
         file_url = attach_image_to_doc(image_path, submission_id)
 
-        # Create metadata document with both URLs
-        logger.debug("Creating image metadata...")
+        # Create metadata document
         image_doc = frappe.get_doc({
             "doctype": "Image Metadata",
             "submission_id": submission_id,
-            "image_file": file_url,      # Local copy for our analysis
-            "original_url": img_url,     # Store original URL
+            "image_file": file_url,
+            "original_url": img_url,
             "upload_date": frappe.utils.now_datetime(),
             "student_id": student_id,
             "assignment_id": assign_id,
@@ -310,25 +273,21 @@ def process_image_submission(submission_data: Dict) -> None:
 
         image_doc.insert(ignore_permissions=True)
         frappe.db.commit()
-        logger.info(f"Image metadata created with name: {image_doc.name}")
+        logger.info(f"Created metadata for submission: {submission_id}")
 
         # Check for plagiarism
-        logger.debug("Checking for plagiarism...")
         distances, indices = check_for_plagiarism(image_doc.name, feature_vector)
 
         threshold = 0.95
         plagiarism_detected = False
         
         if distances is not None and len(distances) > 0:
-            logger.debug(f"Found distances: {distances}")
-            
             for i, distance in enumerate(distances):
                 if distance < threshold:
                     plagiarism_detected = True
                     similar_image_doc = frappe.get_doc("Image Metadata", indices[i])
                     
                     # Create plagiarism flag
-                    logger.debug("Creating plagiarism flag...")
                     flag_doc = frappe.get_doc({
                         "doctype": "Plagiarism Flag",
                         "image_id": image_doc.name,
@@ -338,43 +297,39 @@ def process_image_submission(submission_data: Dict) -> None:
                     })
                     flag_doc.insert(ignore_permissions=True)
                     frappe.db.commit()
-                    logger.info(f"Plagiarism flag created with name: {flag_doc.name}")
+                    logger.info(f"Flagged potential plagiarism for: {submission_id}")
 
-                    # Get similar sources and send feedback
                     similar_sources = get_similar_sources(similar_image_doc.cluster_id)
                     send_plagiarism_feedback(
                         submission_id=submission_id,
                         student_id=student_id,
                         assignment_id=assign_id,
-                        img_url=img_url,  # Use original URL in feedback
+                        img_url=img_url,
                         plagiarism_score=float(distance),
                         similar_sources=similar_sources
                     )
                     break
 
-        # Send feedback if no plagiarism detected
         if not plagiarism_detected:
-            logger.debug("No plagiarism detected, sending feedback")
             send_plagiarism_feedback(
                 submission_id=submission_id,
                 student_id=student_id,
                 assignment_id=assign_id,
-                img_url=img_url,  # Use original URL in feedback
+                img_url=img_url,
                 plagiarism_score=0.0,
                 similar_sources=[]
             )
 
     except Exception as e:
-        logger.error(f"Error processing submission: {str(e)}", exc_info=True)
+        logger.error(f"Error processing submission {submission_id}: {str(e)}")
         frappe.db.rollback()
         
-        # Send error feedback if we have the required fields
         if all([submission_id, student_id, assign_id, img_url]):
             send_plagiarism_feedback(
                 submission_id=submission_id,
                 student_id=student_id,
                 assignment_id=assign_id,
-                img_url=img_url,  # Use original URL in feedback
+                img_url=img_url,
                 plagiarism_score=0.0,
                 similar_sources=[]
             )
